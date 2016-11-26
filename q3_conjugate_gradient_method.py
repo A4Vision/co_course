@@ -23,16 +23,16 @@ class ConjugateGradient(object):
         return -g + beta * d
 
     def _next_g(self, x):
-        return numpy.dot(self._Q, x) - self._b
+        return self._Q.dot(x) - self._b
 
     def _next_x(self, x, alpha, d):
         return x + alpha * d
 
     def _next_alpha(self, g, d):
-        return - numpy.inner(g, d) / numpy.inner(d, numpy.dot(self._Q, d))
+        return - numpy.inner(g, d) / numpy.inner(d, self._Q.dot(d))
 
     def _next_beta(self, g, d):
-        return numpy.inner(g, numpy.dot(self._Q, d)) / numpy.inner(d, numpy.dot(self._Q, d))
+        return numpy.inner(g, self._Q.dot(d)) / numpy.inner(d, self._Q.dot(d))
 
     def step(self):
         self._alpha = self._next_alpha(self._g, self._d)
@@ -49,16 +49,16 @@ class ConjugateGradient(object):
         return self._next_g(self._x)
 
     def value(self):
-        return numpy.inner(self._x, numpy.dot(self._Q, self._x)) - 2 * numpy.inner(self._b, self._x)
+        return numpy.inner(self._x, self._Q.dot(self._x)) - 2 * numpy.inner(self._b, self._x)
 
 
 def main():
-    n = 50
-    A, real_x, b = blur.blur(n, 3, 4)
+    n = 128
+    A, b, real_x = blur.blur(n, 3, 0.8)
     x0 = numpy.random.normal(128, 50, size=n ** 2)
     x0 = numpy.zeros(b.shape)
-    Q = numpy.dot(A.T, A)
-    b_new = numpy.dot(A.T, b)
+    Q = A.T.dot(A)
+    b_new = A.T.dot(b)
     search = ConjugateGradient(Q, b_new, x0)
     num_iters = 40
 

@@ -8,8 +8,8 @@ import matplotlib.pyplot as plt
 class GradientDescentTest(unittest.TestCase):
     def testGradient(self):
         n = 50
-        A, _, b = blur.blur(n, 3, 0.7)
-        search = q3_gradient_descent.SearchSquare(A, b)
+        A, b, _ = blur.blur(n, 3, 0.7)
+        search = q3_gradient_descent.GradientDescentSearch(A, b)
         x0 = numpy.random.normal(128, 50, size=n ** 2)
         h = numpy.zeros(shape=x0.shape)
         f_x0 = search.value(x0)
@@ -29,8 +29,8 @@ class GradientDescentTest(unittest.TestCase):
 
     def testLineSearch(self):
         n = 50
-        A, _, b = blur.blur(n, 3, 0.7)
-        search = q3_gradient_descent.SearchSquare(A, b)
+        A, b, _ = blur.blur(n, 3, 0.7)
+        search = q3_gradient_descent.GradientDescentSearch(A, b)
         for i in xrange(20):
             print 'i', i
             x0 = numpy.random.normal(128, 50, size=n ** 2)
@@ -46,9 +46,9 @@ class GradientDescentTest(unittest.TestCase):
                 self.assertGreater(value_at_other_alpha, value_at_alpha)
 
     def testConverge(self):
-        n = 50
-        A, real_x, b = blur.blur(n, 3, 4)
-        search = q3_gradient_descent.SearchSquare(A, b)
+        n = 128
+        A, b, real_x = blur.blur(n, 3, 4)
+        search = q3_gradient_descent.GradientDescentSearch(A, b)
         # x0 = numpy.random.normal(128, 50, size=n ** 2)
         x0 = numpy.zeros(b.shape)
         num_iters = 100
