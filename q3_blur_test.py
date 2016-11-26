@@ -3,7 +3,6 @@ import numpy
 import blur
 import unittest
 import sys
-import scipy
 
 
 class BlurTest(unittest.TestCase):

@@ -2,17 +2,18 @@ import numpy as np
 from scipy.linalg import toeplitz
 from scipy import sparse
 
-import PIL
-import PIL.Image
+try:
+    from PIL import Image
+except:
+    pass
 import numpy
-from matplotlib import pyplot as plt
 
 
 IMAGE = "squirrel.jpg"
 
 
 def get_squirrel(n):
-    image = PIL.Image.open(IMAGE)
+    image = Image.open(IMAGE)
     resized_grayscale = image.resize((n, n), ).convert("L")
     return numpy.asarray(resized_grayscale, dtype=numpy.float32).flatten()
 
@@ -25,9 +26,11 @@ def save_array_as_img(x, title):
     assert x_max > x_min
     x = (x - x_min) / (x_max - x_min) * 254 + 1
     shaped = x.reshape((n, n))
-    im = PIL.Image.fromarray(numpy.uint8(shaped))
-    im.save(open(title + ".bmp", "wb"), format="bmp")
-
+    if "Image" in globals():
+        im = Image.fromarray(numpy.uint8(shaped))
+        im.save(open(title + ".bmp", "wb"), format="bmp")
+    else:
+        print "Cant save - no PIL"
 
 def blur(N, band=3, sigma=0.7, use_squirrel=False):
     z = np.concatenate([np.exp(-(np.r_[:band]**2)/(2*sigma**2)), np.zeros(N-band)])
@@ -64,7 +67,7 @@ def blur(N, band=3, sigma=0.7, use_squirrel=False):
 
     # Make sure x is N-times-N, and stack the columns of x.
     x = x[:N,:N].ravel()
-    if use_squirrel:
+    if use_squirrel and "Image" in globals():
         x = get_squirrel(N)
 
     b = A*x

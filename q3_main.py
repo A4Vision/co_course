@@ -1,12 +1,17 @@
-import numpy
-import blur
-import matplotlib.pyplot as plt
 import sys
-import q3_gradient_descent
-import q3_conjugate_gradient_method
 import glob
 import os
-OUTPUT_FILES = False
+import numpy
+try:
+    import matplotlib.pyplot as plt
+    pass
+except:
+    pass
+import blur
+import q3_gradient_descent
+import q3_conjugate_gradient_method
+
+OUTPUT_FILES = True
 
 
 def solve_x(search, output_folder, title):
@@ -102,8 +107,11 @@ def htmlify_table(table):
 
 def main():
     global OUTPUT_FILES
-    use_squirrel = "squirrel" in sys.argv
-    OUTPUT_FILES = "output" in sys.argv
+    use_squirrel = ("squirrel" in sys.argv)
+    use_squirrel = True
+    # Don't allow output if could not import matplotlib
+    OUTPUT_FILES = ("output" in sys.argv) and ('plt' in globals())
+    OUTPUT_FILES = True
     N = 128
     A, b, real_x = blur.blur(N, 3, 0.8, use_squirrel)
     if OUTPUT_FILES:

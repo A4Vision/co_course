@@ -1,0 +1,32 @@
+Assaf Yifrach
+203711494
+assafyifrach@mail.tau.ac.il
+
+Amit Botzer
+
+amitbotzer@mail.tau.ac.il
+
+
+How to Run
+==========
+For q3:
+python q3_main.py [output] [squirrel]
+
+if using the output flag, files will be created under the current directory.
+if using the squirrel flag, the calculations will be performed on a cute squirrel image,
+not on the triangle+cross+rectangle generated image.
+
+
+Dependencies
+============
+Assumes scipy, numpy
+In order to output graphs, one needs matplotlib
+In order to output images, one needs PIL
+
+
+Files
+=======
+q3_main.py                      -- runs the search and creates the output files.
+q3_gradient_descent.py          -- implementation of GD for minimizing ||Ax - b|| ** 2
+q3_conjugate_gradient_method.py -- implementation of CGM for solving A_transpose*A*x = A_transpose*b
+blur.py                         -- generates A, b, x. Also contains function to output arrays as images.
