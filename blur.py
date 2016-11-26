@@ -5,40 +5,31 @@ from scipy import sparse
 import PIL
 import PIL.Image
 import numpy
+from matplotlib import pyplot as plt
+
 
 IMAGE = "squirrel.jpg"
 
 
-def blur1(n, band, sigma):
+def get_squirrel(n):
     image = PIL.Image.open(IMAGE)
     resized_grayscale = image.resize((n, n), ).convert("L")
-    x = numpy.asarray(resized_grayscale, dtype=numpy.float32).flatten()
-    identity = numpy.identity(n ** 2, dtype=numpy.float32) * 4
-    for i in xrange(n ** 2):
-        for j in xrange(max(0, i - 2), min(n ** 2, i + 3)):
-            if abs(i - j) == 1:
-                identity[i, j] = 2
-            if abs(i - j) == 2:
-                identity[i, j] = 1
-    A = identity / (1 + 2 + 4 + 2 + 1.)
-    b = numpy.dot(A, x)
-    b += numpy.random.normal(0., sigma, size=b.shape)
-    return A, b, x
+    return numpy.asarray(resized_grayscale, dtype=numpy.float32).flatten()
 
 
 def save_array_as_img(x, title):
-    print x.shape
-    print numpy.max(x), numpy.min(x)
+    x_max, x_min = numpy.max(x), numpy.min(x)
     assert x.ndim == 1
     n = int(x.shape[0] ** 0.5)
     assert x.shape[0] ** 0.5 == n
+    assert x_max > x_min
+    x = (x - x_min) / (x_max - x_min) * 254 + 1
     shaped = x.reshape((n, n))
-    # print numpy.float32(shaped) - numpy.float32(numpy.uint8(shaped))
     im = PIL.Image.fromarray(numpy.uint8(shaped))
-    im.save(open(title + ".jpg", "wb"), format="jpeg")
+    im.save(open(title + ".bmp", "wb"), format="bmp")
 
 
-def blur(N, band=3, sigma=0.7):
+def blur(N, band=3, sigma=0.7, use_squirrel=False):
     z = np.concatenate([np.exp(-(np.r_[:band]**2)/(2*sigma**2)), np.zeros(N-band)])
     A = toeplitz(z)
     A = sparse.csr_matrix(A)
@@ -73,15 +64,15 @@ def blur(N, band=3, sigma=0.7):
 
     # Make sure x is N-times-N, and stack the columns of x.
     x = x[:N,:N].ravel()
-
-    _, x, _ = blur1(N, 1, 1)
+    if use_squirrel:
+        x = get_squirrel(N)
 
     b = A*x
     return A, b, x
 
 
 def main():
-    _, b, x = blur(128, 3, 0.8)
+    _, b, x = blur(128, 3, 0.8, True)
     save_array_as_img(x, "original")
     save_array_as_img(b, "blurred")
 

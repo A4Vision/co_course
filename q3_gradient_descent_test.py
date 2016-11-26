@@ -9,7 +9,7 @@ class GradientDescentTest(unittest.TestCase):
     def testGradient(self):
         n = 50
         A, b, _ = blur.blur(n, 3, 0.7)
-        search = q3_gradient_descent.GradientDescentSearch(A, b)
+        search = q3_gradient_descent.GradientDescent(A, b)
         x0 = numpy.random.normal(128, 50, size=n ** 2)
         h = numpy.zeros(shape=x0.shape)
         f_x0 = search.value(x0)
@@ -30,7 +30,7 @@ class GradientDescentTest(unittest.TestCase):
     def testLineSearch(self):
         n = 50
         A, b, _ = blur.blur(n, 3, 0.7)
-        search = q3_gradient_descent.GradientDescentSearch(A, b)
+        search = q3_gradient_descent.GradientDescent(A, b)
         for i in xrange(20):
             print 'i', i
             x0 = numpy.random.normal(128, 50, size=n ** 2)
@@ -47,9 +47,8 @@ class GradientDescentTest(unittest.TestCase):
 
     def testConverge(self):
         n = 128
-        A, b, real_x = blur.blur(n, 3, 4)
-        search = q3_gradient_descent.GradientDescentSearch(A, b)
-        # x0 = numpy.random.normal(128, 50, size=n ** 2)
+        A, b, real_x = blur.blur(n, 3, 0.8)
+        search = q3_gradient_descent.GradientDescent(A, b)
         x0 = numpy.zeros(b.shape)
         num_iters = 100
         x = x0
@@ -64,12 +63,3 @@ class GradientDescentTest(unittest.TestCase):
         gradient_size = numpy.linalg.norm(gradient_x)
         epsilon = 10
         self.assertGreater(epsilon, gradient_size)
-
-        plt.plot(values[2:], 'ro')
-        plt.savefig('values.png')
-        plt.cla()
-        plt.plot(gradient_norms[2:], 'b+')
-        plt.savefig('gradient_norms.png')
-        blur.save_array_as_img(b, "converge_test_b")
-        blur.save_array_as_img(x, "converge_test_found_x")
-        blur.save_array_as_img(real_x, "converge_test_real_x")

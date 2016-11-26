@@ -1,7 +1,7 @@
 import numpy
 
 
-class GradientDescentSearch(object):
+class GradientDescent(object):
     def __init__(self, A, b):
         self._A = A
         self._b = b
@@ -23,3 +23,21 @@ class GradientDescentSearch(object):
     def step(self, x, gradient):
         alpha = self.line_search(x, gradient)
         return x + alpha * gradient
+
+
+class GradientDescentSearch(object):
+    def __init__(self, descent, x0):
+        self._x = x0
+        self._descent_algorithm = descent
+
+    def step(self):
+        self._x = self._descent_algorithm.step(self._x, self.gradient())
+
+    def gradient(self):
+        return self._descent_algorithm.gradient(self._x)
+
+    def value(self):
+        return self._descent_algorithm.value(self._x)
+
+    def state(self):
+        return self._x

@@ -7,11 +7,13 @@ class ConjugateGradient(object):
     """
     Minimize 0.5 * xT * Q * x - bT * x.
     """
-    def __init__(self, Q, b, x0):
+    def __init__(self, A, b, x0):
         assert b.ndim == 1
-        assert Q.shape == (len(b), len(b))
-        self._Q = Q
-        self._b = b
+        assert A.shape == (len(b), len(b))
+        self._A = A
+        self._Q = A.T.dot(A)
+        self._b_original = b
+        self._b = A.T.dot(b)
         self._k = 0
         self._x = x0
         self._g = self._next_g(x0)
@@ -49,18 +51,16 @@ class ConjugateGradient(object):
         return self._next_g(self._x)
 
     def value(self):
-        return numpy.inner(self._x, self._Q.dot(self._x)) - 2 * numpy.inner(self._b, self._x)
+        return numpy.linalg.norm(self._A.dot(self._x) - self._b_original) ** 2
 
 
 def main():
     n = 128
     A, b, real_x = blur.blur(n, 3, 0.8)
-    x0 = numpy.random.normal(128, 50, size=n ** 2)
     x0 = numpy.zeros(b.shape)
-    Q = A.T.dot(A)
     b_new = A.T.dot(b)
-    search = ConjugateGradient(Q, b_new, x0)
-    num_iters = 40
+    search = ConjugateGradient(A, b_new, x0)
+    num_iters = 100
 
     gradient_norms = []
     values = []
