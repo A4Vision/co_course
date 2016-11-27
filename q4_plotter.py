@@ -41,6 +41,8 @@ def main():
     plt.figure(1)
     plt.plot(x, gm_differences[:100], 'g')
     plt.plot(x, hbm_differences[:100], 'r')
+    plt.xlabel('number of iterations')
+    plt.ylabel('f(x_k) - f(x*)')
     plt.legend(['GM', 'HBM'], loc='upper right')
     plt.savefig('gm_hbm_convergance.png')
 
@@ -48,6 +50,8 @@ def main():
     x = numpy.arange(1000)
     plt.plot(x, gm_average_differences, 'b')
     plt.plot(x, hbm_average_differences, 'r')
+    plt.xlabel('number of iterations')
+    plt.ylabel('f(x_N) - f(x*)')
     plt.legend(['GM', 'HBM'], loc='upper right')
     plt.savefig('average_convergance.png')
     plt.show()
