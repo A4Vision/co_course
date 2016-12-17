@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.spatial import distance
 
 
 def project_into_simplex(x):
@@ -27,5 +28,4 @@ def project_into_l1_ball(x):
     sgns = np.sign(x)
     projected = project_into_simplex(sgns * x)
     return sgns * projected
-
 
