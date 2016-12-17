@@ -1,8 +1,9 @@
 import unittest
+
 import numpy
+
 import blur
 import q3_gradient_descent
-import matplotlib.pyplot as plt
 
 
 class GradientDescentTest(unittest.TestCase):

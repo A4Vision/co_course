@@ -1,8 +1,11 @@
 from __future__ import print_function
-import numpy
-import blur
-import unittest
+
 import sys
+import unittest
+
+import numpy
+
+import blur
 
 
 class BlurTest(unittest.TestCase):

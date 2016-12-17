@@ -1,7 +1,9 @@
-import sys
 import glob
 import os
+import sys
+
 import numpy
+
 try:
     import matplotlib.pyplot as plt
     pass
