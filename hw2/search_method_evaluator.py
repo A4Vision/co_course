@@ -131,6 +131,7 @@ def compare_sgp_step_selectors():
     """
     step_size_selectors = [subgradient_projection_method.DynamicStepSize(),
                            subgradient_projection_method.ConstantStepSize(N_steps),
+                           # We know that for x_true, we have exactly Ax = b.
                            subgradient_projection_method.OptimalStepKnownTargetValue(0),
                            subgradient_projection_method.SmallerThanOtherSelector(
                                    subgradient_projection_method.OptimalStepKnownTargetValue(0), 0.5)]
