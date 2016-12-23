@@ -28,11 +28,12 @@ class HuberCalculator(object):
         else:
             return a
 
-"""
-SFISTA implemented to solve the smoothed problem:
-min [(sum (huber(a_i * x - b_i)) + sumplex_indicator(x)]
-"""
+
 class SFISTAMethod(abstract_search_method.SearchMethod):
+    """
+    SFISTA implemented to solve the smoothed problem:
+    min [(sum (huber(a_i * x - b_i)) + sumplex_indicator(x)]
+    """
 
     def __init__(self, search_state, mu, L):
         """
