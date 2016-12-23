@@ -4,12 +4,12 @@ import numpy as np
 def project_into_simplex(x):
     """
     Projects the given point in R^n, to a point in the simplex:
-        SUM(x_i) <= 1
+        SUM(x_i) == 1, x_i >= 0 for all i.
     :param x: numpy array of dimension 1. Point to project.
     :return:
     """
-    assert np.all(x >= 0)
     assert x.ndim == 1
+    x *= (x >= 0)
     n = len(x)
     x_sorted = np.sort(x)[::-1]
     sums = np.cumsum(x_sorted) - 1

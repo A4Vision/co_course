@@ -5,8 +5,8 @@ from scipy.spatial import distance
 Problem = collections.namedtuple("Problem", ("A", "b"))
 
 
-def randomize_problem(m=80, n=100):
-    np.random.seed(318)
+def randomize_problem(m=80, n=100, seed=318):
+    np.random.seed(seed)
     A = np.random.randn(m, n)
     x_true = np.random.random(size=n)
     x_true /= np.sum(x_true)  # Normalize x.
@@ -34,10 +34,10 @@ class SearchState(object):
     def score(self):
         return distance.norm(np.dot(self.A(), self.x()) - self.b(), ord=1)
 
-    def set_x(self, x):
-        self._x = x
+    def move_to_x(self, x):
+        return SearchState(self._problem, x)
 
-    def ranbdom_subgradient(self):
+    def random_subgradient(self):
         """
         Random subgradient of the target function.
         :return: SUM_i(ai_T * sign(ai_T * x - b_i)  ; ai_T * x - b_i != 0) +
@@ -63,3 +63,9 @@ class SearchState(object):
         diff = np.dot(self.A(), self.x()) - self.b()
         diff_signs = np.sign(diff)
         return np.dot(diff_signs, self.A())
+
+    def euclidean_distance_to_target(self, x_true):
+        return distance.euclidean(x_true, self.x())
+
+    def deterministic_gradient_size(self):
+        return distance.norm(self.middle_subgradient(), ord=2)
