@@ -1,5 +1,4 @@
 import numpy as np
-from scipy.spatial import distance
 
 
 def project_into_simplex(x):

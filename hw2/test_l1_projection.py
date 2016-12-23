@@ -1,8 +1,8 @@
+import logging
 import numpy as np
 from scipy.spatial import distance
 import l1_projection
 import unittest
-import logging
 
 
 
