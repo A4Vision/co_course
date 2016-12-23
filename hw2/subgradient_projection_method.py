@@ -5,8 +5,8 @@ from hw2 import random_problem
 from hw2 import abstract_search_method
 
 
-L1_SIMPLEX_DIAMETER = 1
-THETA = 0.5 * L1_SIMPLEX_DIAMETER
+L1_SIMPLEX_SQUARE_DIAMETER = 2
+THETA = 0.5 * L1_SIMPLEX_SQUARE_DIAMETER
 
 
 class SubgradientProjectionMethod(abstract_search_method.SearchMethod):
