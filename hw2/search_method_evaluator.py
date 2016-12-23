@@ -8,19 +8,35 @@ from hw2 import subgradient_projection_method
 from scipy.spatial import distance
 
 COLORS = ["red", "green", "blue", "black", "yellow"]
+# Amount of iterations in every search.
 N_steps = 120
+# How many problems to randomize, in order to calculate average metrics.
 N_runs = 20
-FIRST_STEP_TO_IGNORE_IN_PLOT = 20
+# How many steps to ignore when plotting the metrics.
+# It is reasonable to ignore the first steps in order to
+# observe better the behavior during convergence, because
+# normally the first iterations have very large metrics.
+FIRST_STEPS_TO_IGNORE_IN_PLOT = 20
 
 # TODO(assaf): Consider refactoring to using a generic metric.
 # Amount of metrics - scores, gradients_sizes, etc.
 METRICS_AMOUNT = 4
+# Each metric is just a list of numbers that are measured after each step.
 SearchMetrics = collections.namedtuple("SearchMetrics", ("scores", "gradients_sizes", "x_delta_sizes",
                                                          "distances_to_x_true"))
 
 
 def average_lists(lists):
-    return np.average(np.array(lists, dtype=np.float64), axis=0)
+    """
+    Average each coordinate of the given lists.
+    :param lists:
+    :return:
+
+    >>> lists = [[0, 1, 2], [1, 2, 3]]
+    >>> average_lists(lists)
+    [0.5, 1.5, 2.5]
+    """
+    return list(np.average(np.array(lists, dtype=np.float64), axis=0))
 
 
 def average_metrics(metrics_list):
@@ -50,10 +66,10 @@ def plot_metrics(method_name2metrics):
     for (method_name, metrics), color in zip(method_name2metrics.iteritems(), COLORS):
         assert isinstance(metrics, SearchMetrics)
         label = method_name
-        scores_ax.plot(metrics.scores[FIRST_STEP_TO_IGNORE_IN_PLOT:], label=label, color=color)
-        gradients_ax.plot(metrics.gradients_sizes[FIRST_STEP_TO_IGNORE_IN_PLOT:], label=label, color=color)
-        distances_ax.plot(metrics.distances_to_x_true[FIRST_STEP_TO_IGNORE_IN_PLOT:], label=label, color=color)
-        deltas_ax.plot(metrics.x_delta_sizes[FIRST_STEP_TO_IGNORE_IN_PLOT:], label=label, color=color)
+        scores_ax.plot(metrics.scores[FIRST_STEPS_TO_IGNORE_IN_PLOT:], label=label, color=color)
+        gradients_ax.plot(metrics.gradients_sizes[FIRST_STEPS_TO_IGNORE_IN_PLOT:], label=label, color=color)
+        distances_ax.plot(metrics.distances_to_x_true[FIRST_STEPS_TO_IGNORE_IN_PLOT:], label=label, color=color)
+        deltas_ax.plot(metrics.x_delta_sizes[FIRST_STEPS_TO_IGNORE_IN_PLOT:], label=label, color=color)
     scores_ax.legend()
     gradients_ax.legend()
     distances_ax.legend()
@@ -62,6 +78,12 @@ def plot_metrics(method_name2metrics):
 
 
 def calculate_metrics(search_method, x_true):
+    """
+    Runs the given searcher for N_steps, and calculates the metrics for this run.
+    :param search_method:
+    :param x_true:
+    :return:
+    """
     assert isinstance(search_method, abstract_search_method.SearchMethod)
     metrics = SearchMetrics([], [], [], [])
     prev_x = search_method.state().x()
@@ -78,10 +100,14 @@ def calculate_metrics(search_method, x_true):
 
 def measure_metrics_for_various_methods(method_name2method_factory, n_runs):
     """
-    :param methods_factories:
-    List[f]
-        f(problem, x0) --> SearchMethod
-    :return:
+    :param n_runs: Amount of random problems to measure.
+    :param method_name2method_factory:
+    dict[str, callable]
+        f = method_name2method_factory[method_name]
+        f(problem, x0) --> SearchMethod instance.
+    :return: dict[str, SearchMetrics]
+        Average metrics for each search method.
+        Averaged over n_runs.
     """
     randomized = [random_problem.randomize_problem(seed=i) for i in xrange(n_runs)]
     method_name2metrics = {}
@@ -98,7 +124,11 @@ def measure_metrics_for_various_methods(method_name2method_factory, n_runs):
     return method_name2metrics
 
 
-def evaluate_sgp():
+def compare_sgp_step_selectors():
+    """
+    Plots a graph that compares the various SGP step size selection schemes.
+    :return:
+    """
     step_size_selectors = [subgradient_projection_method.DynamicStepSize(),
                            subgradient_projection_method.ConstantStepSize(N_steps),
                            subgradient_projection_method.OptimalStepKnownTargetValue(0),
@@ -115,7 +145,7 @@ def evaluate_sgp():
 
 
 def main():
-    evaluate_sgp()
+    compare_sgp_step_selectors()
 
 
 if __name__ == '__main__':
