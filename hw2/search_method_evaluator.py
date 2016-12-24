@@ -5,6 +5,8 @@ import numpy as np
 from hw2 import random_problem
 from hw2 import abstract_search_method
 from hw2 import subgradient_projection_method
+from hw2 import mirror_descent_with_simplex_setting
+from hw2 import step_size
 from scipy.spatial import distance
 
 COLORS = ["red", "green", "blue", "black", "yellow"]
@@ -95,6 +97,7 @@ def calculate_metrics(search_method, x_true):
         metrics.distances_to_x_true.append(state.euclidean_distance_to_target(x_true))
         metrics.x_delta_sizes.append(distance.euclidean(state.x(), prev_x))
         prev_x = state.x()
+
     return metrics
 
 
@@ -129,12 +132,12 @@ def compare_sgp_step_selectors():
     Plots a graph that compares the various SGP step size selection schemes.
     :return:
     """
-    step_size_selectors = [subgradient_projection_method.DynamicStepSize(),
-                           subgradient_projection_method.ConstantStepSize(N_steps),
+    step_size_selectors = [step_size.DynamicStepSize(),
+                           step_size.ConstantStepSize(N_steps),
                            # We know that for x_true, we have exactly Ax = b.
-                           subgradient_projection_method.OptimalStepKnownTargetValue(0),
-                           subgradient_projection_method.SmallerThanOtherSelector(
-                                   subgradient_projection_method.OptimalStepKnownTargetValue(0), 0.5)]
+                           step_size.OptimalStepKnownTargetValue(0),
+                           step_size.SmallerThanOtherSelector(
+                                   step_size.OptimalStepKnownTargetValue(0), 0.5)]
     method_name2factory = {}
     for step_size_selector in step_size_selectors:
         method_name2factory[type(step_size_selector).__name__] = functools.partial(
@@ -145,9 +148,42 @@ def compare_sgp_step_selectors():
     plt.show()
 
 
-def main():
-    compare_sgp_step_selectors()
+def compare_sgp_and_mirror_descent():
+    """
+    Compare SGP, with two versions of EMD:
+        * one with theta = log(n) - strict bound over Bergman(x_true, x)
+        * another with theta = empirical bound over Bergman(x_true, x)
+    :return:
+    """
+    sgp = functools.partial(subgradient_projection_method.SubgradientProjectionMethod,
+                            step_size_selector=step_size.OptimalStepKnownTargetValue(0))
 
+    def mirror_descent1(search_state):
+        n = len(search_state.x())
+        theta = step_size.strict_theta(n)
+        step_size_selector = step_size.MirrorDescentSimplexStepSizeSelector(theta)
+        return mirror_descent_with_simplex_setting.MirrorDescentMethod(search_state, step_size_selector)
+
+    def mirror_descent2(search_state):
+        n = len(search_state.x())
+        theta = step_size.empirical_theta(n)
+        step_size_selector = step_size.MirrorDescentSimplexStepSizeSelector(theta)
+        return mirror_descent_with_simplex_setting.MirrorDescentMethod(search_state, step_size_selector)
+
+    mirror_descent3 = functools.partial(mirror_descent_with_simplex_setting.MirrorDescentMethod,
+                                        step_size_selector=step_size.OptimalStepKnownTargetValue(0))
+
+    method_name2factory = {"SGP": sgp, "EMD+theta=log(n)": mirror_descent1,
+                           "EMD+theta=log(n)+MAX(SUM(x_i*log(x_i)))": mirror_descent2,
+                           "EMD+step sizea according to gradient l2-norm": mirror_descent3}
+    method_name2metrics = measure_metrics_for_various_methods(method_name2factory, N_runs)
+    plot_metrics(method_name2metrics)
+    plt.show()
+
+
+def main():
+    # compare_sgp_step_selectors()
+    compare_sgp_and_mirror_descent()
 
 if __name__ == '__main__':
     main()
