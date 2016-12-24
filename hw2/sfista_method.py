@@ -25,8 +25,10 @@ class HuberCalculator(object):
         """
         if abs(np.dot(a, x) - b) < self._mu:
             return (np.dot(a, x) - b) / self._mu * a
-        else:
+        elif abs(np.dot(a, x) - b) > self._mu:
             return a
+        else:
+            raise Exception('derivative does not defined where (np.dot(a, x) - b) == mu')
 
 
 class SFISTAMethod(abstract_search_method.SearchMethod):
