@@ -68,7 +68,7 @@ class SFISTAMethod(abstract_search_method.SearchMethod):
         return (1 + (1 + 4 * (current_t ** 2)) ** 0.5) / 2
 
     def get_next_y(self, current_x, last_x, new_t, current_t):
-        return current_x + (current_t - 1) / new_t * (current_x - last_x)
+        return current_x + (current_t - 1.0) / new_t * (current_x - last_x)
 
     def smoothed_f(self, x):
         return sum(self._huber_calc.huber(np.dot(self._state.A()[i,:], x) - self._state.b()[i]) for i in range(0, self._state.A().shape[0]))

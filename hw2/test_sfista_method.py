@@ -71,3 +71,11 @@ class TestSFISTAMethod(unittest.TestCase):
 
     def test_get_next_t_where_t_is_sqrt_2(self):
         self.assertAlmostEqual(2, self.sfista_method.get_next_t(math.sqrt(2)), 7)
+
+    def test_get_next_y(self):
+        current_x = self.x
+        last_x = np.array([[0.2], [0.2], [0.2], [0.2], [0.2]])
+        current_t = 2
+        new_t = 1
+        res = self.sfista_method.get_next_y(current_x, last_x, new_t, current_t)
+        self.assertItemsEqual(self.x, res)
