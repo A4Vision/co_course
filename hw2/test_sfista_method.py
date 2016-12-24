@@ -46,27 +46,25 @@ class TestHuberCalculator(unittest.TestCase):
 class TestSFISTAMethod(unittest.TestCase):
 
     def setUp(self):
-        problem, x0 = random_problem.randomize_problem()
-        search_state = random_problem.SearchState(problem, x0)
-        self.sfista_method = SFISTAMethod(search_state, 0.5, 1)
-
-    def test_get_next_x(self):
-        pass
-
-    def test_grad_f(self):
-
-        # set up:
         A = np.array([[1, -1.5, 1.5, 2, -0.5], [1, -1.5, 1.5, 2, -0.5], [1, -1.5, 1.5, 2, -0.5],
                      [1, -1.5, 1.5, 2, -0.5], [1, -1.5, 1.5, 2, -0.5]])
-        x = np.array([[0.2], [0.2], [0.2], [0.2], [0.2]])
+        self.x = np.array([[0.2], [0.2], [0.2], [0.2], [0.2]])
         b = np.array([[0.25], [0.25], [0.25], [0.25], [0.25]])
         problem = random_problem.Problem(A, b)
-        search_state = random_problem.SearchState(problem, x)
-        sfista_method = SFISTAMethod(search_state, 0.5, 1)
+        search_state = random_problem.SearchState(problem, self.x)
+        self.sfista_method = SFISTAMethod(search_state, 0.5, 5)
 
+    def test_get_next_x(self):
+        # build expected result:
+        to_project = np.array([-0.3, 0.95, -0.55, -0.8, 0.45])
+        expected = project_into_simplex(to_project)
         # test:
-        res = sfista_method.grad_f(x)
-        self.assertItemsEqual(np.array([2.5, -3.75, 3.75, 5, -1.25]), res)
+        res = self.sfista_method.get_next_x(self.x)
+        self.assertItemsEqual(expected, res)
+
+    def test_grad_f(self):
+        res = self.sfista_method.grad_f(self.x)
+        self.assertItemsEqual(np.array([[2.5], [-3.75], [3.75], [5], [-1.25]]), res)
 
     def test_get_next_t_where_t_is_one(self):
         self.assertAlmostEqual(1.61803, self.sfista_method.get_next_t(1), 5)

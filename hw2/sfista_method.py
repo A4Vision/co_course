@@ -56,10 +56,13 @@ class SFISTAMethod(abstract_search_method.SearchMethod):
         self._y_k = self.get_next_y(self._state.x(), last_x_k, self._t_k, last_t_k)
 
     def get_next_x(self, y):
-        return project_into_simplex(y - 1/self._L * self.grad_f(y))
+        to_project = y - 1.0/self._L * self.grad_f(y)
+        reshaped = to_project.reshape((y.shape[0]))
+        return project_into_simplex(reshaped)
 
     def grad_f(self, x):
-        return sum(self._huber_calc.huber_derivative(x, self._state.A()[i,:], self._state.b()[i]) for i in range(0, self._state.A().shape[0]))
+        res = sum(self._huber_calc.huber_derivative(x, self._state.A()[i,:], self._state.b()[i]) for i in range(0, self._state.A().shape[0]))
+        return res.reshape((self._state.x().shape[0], 1))
 
     def get_next_t(self, current_t):
         return (1 + (1 + 4 * (current_t ** 2)) ** 0.5) / 2
