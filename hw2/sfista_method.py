@@ -51,15 +51,15 @@ class SFISTAMethod(abstract_search_method.SearchMethod):
     def step(self):
         last_x_k = self._state.x()
         last_t_k = self._t_k
-        self._state = self._state.move_to_x(self.get_next_x(self._y_k, self._L))
+        self._state = self._state.move_to_x(self.get_next_x(self._y_k))
         self._t_k = self.get_next_t(self._t_k)
         self._y_k = self.get_next_y(self._state.x(), last_x_k, self._t_k, last_t_k)
 
-    def get_next_x(self, y, L):
-        return project_into_simplex(y - 1/L * self.grad_f(y))
+    def get_next_x(self, y):
+        return project_into_simplex(y - 1/self._L * self.grad_f(y))
 
     def grad_f(self, x):
-        return sum(self._huber_calc.huber_derivative(x, self._state.A()[i,:], self._state.b[i]) for i in range(1, self._state.A().shape[0]))
+        return sum(self._huber_calc.huber_derivative(x, self._state.A()[i,:], self._state.b()[i]) for i in range(0, self._state.A().shape[0]))
 
     def get_next_t(self, current_t):
         return (1 + (1 + 4 * (current_t ** 2)) ** 0.5) / 2
@@ -68,4 +68,4 @@ class SFISTAMethod(abstract_search_method.SearchMethod):
         return current_x + (current_t - 1) / new_t * (current_x - last_x)
 
     def smoothed_f(self, x):
-        return sum(self._huber_calc.huber(np.dot(self._state.A()[i,:], x) - self._state.b[i]) for i in range(1, self._state.A().shape[0]))
+        return sum(self._huber_calc.huber(np.dot(self._state.A()[i,:], x) - self._state.b()[i]) for i in range(0, self._state.A().shape[0]))
