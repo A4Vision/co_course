@@ -8,6 +8,7 @@ from hw2 import subgradient_projection_method
 from hw2 import mirror_descent_with_simplex_setting
 from hw2 import step_size
 from scipy.spatial import distance
+from hw2 import sfista_method
 
 COLORS = ["red", "green", "blue", "black", "yellow"]
 # Amount of iterations in every search.
@@ -178,10 +179,41 @@ def compare_sgp_and_mirror_descent():
     plt.savefig("emd_and_sgp.png")
     plt.show()
 
+def compare_all():
+    """
+    Compare SGP, better version of EMD (see compare_sgp_and_mirror_descent) and SFISTA
+    :return:
+    """
+    # sgp = functools.partial(subgradient_projection_method.SubgradientProjectionMethod,
+    #                         step_size_selector=step_size.OptimalStepKnownTargetValue(0))
+
+    # def mirror_descent(search_state):
+    #     n = len(search_state.x())
+    #     theta = step_size.empirical_theta(n)
+    #     step_size_selector = step_size.MirrorDescentSimplexStepSizeSelector(theta)
+    #     return mirror_descent_with_simplex_setting.MirrorDescentMethod(search_state, step_size_selector)
+    #
+    def sfista(search_state):
+        mu = sfista_method.calculate_mu(0.1, search_state.A().shape[0])
+        L_f = sfista_method.calculate_L_f(search_state.A(), mu)
+        #L_f = 50000000.0
+        return sfista_method.SFISTAMethod(search_state, mu, L_f)
+
+    #method_name2factory = {"SGP": sgp, "EMD+theta=log(n)+MAX(SUM(x_i*log(x_i)))": mirror_descent,
+    #                      "SFISTA": sfista}
+
+    method_name2factory = {"SFISTA": sfista}
+
+    method_name2metrics = measure_metrics_for_various_methods(method_name2factory, N_runs)
+    f = plot_metrics(method_name2metrics)
+    f.suptitle("SGV vs. Entropic Mirror Descent vs. SFISTA")
+    # plt.savefig("all_methods.png")
+    plt.show()
 
 def main():
-    compare_sgp_step_selectors()
-    compare_sgp_and_mirror_descent()
+    #compare_sgp_step_selectors()
+    #compare_sgp_and_mirror_descent()
+    compare_all()
 
 if __name__ == '__main__':
     main()

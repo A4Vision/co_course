@@ -3,7 +3,7 @@ __author__ = 'Amit Botzer'
 from l1_projection import *
 import numpy as np
 from hw2 import abstract_search_method
-
+import math
 
 def calculate_mu(epsilon, m):
     """
@@ -84,7 +84,7 @@ class SFISTAMethod(abstract_search_method.SearchMethod):
         return res
 
     def get_next_t(self, current_t):
-        return (1 + (1 + 4 * (current_t ** 2)) ** 0.5) / 2
+        return (1 + math.sqrt(1 + 4 * (current_t ** 2))) / 2
 
     def get_next_y(self, current_x, last_x, new_t, current_t):
         return current_x + (current_t - 1.0) / new_t * (current_x - last_x)
