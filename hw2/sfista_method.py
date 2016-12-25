@@ -40,9 +40,10 @@ class HuberCalculator(object):
         x - R^n column vector
         b - real number
         """
-        if abs(np.dot(a, x) - b) < self._mu:
-            return (np.dot(a, x) - b) / self._mu * a
-        elif abs(np.dot(a, x) - b) > self._mu:
+        reshaped_x = x.reshape(a.shape[0])
+        if abs(np.dot(a, reshaped_x) - b) < self._mu:
+            return (np.dot(a, reshaped_x) - b) / self._mu * a
+        elif abs(np.dot(a, reshaped_x) - b) > self._mu:
             return a
         else:
             raise Exception('derivative does not defined where (np.dot(a, x) - b) == mu')
@@ -80,7 +81,7 @@ class SFISTAMethod(abstract_search_method.SearchMethod):
 
     def grad_f(self, x):
         res = sum(self._huber_calc.huber_derivative(x, self._state.A()[i,:], self._state.b()[i]) for i in range(0, self._state.A().shape[0]))
-        return res.reshape((self._state.x().shape[0], 1))
+        return res
 
     def get_next_t(self, current_t):
         return (1 + (1 + 4 * (current_t ** 2)) ** 0.5) / 2
