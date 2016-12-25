@@ -1,5 +1,3 @@
-__author__ = 'Amit Botzer'
-
 from l1_projection import *
 import numpy as np
 from hw2 import abstract_search_method
