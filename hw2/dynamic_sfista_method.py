@@ -1,71 +1,35 @@
 from l1_projection import *
 import numpy as np
 from hw2 import abstract_search_method
+from hw2 import sfista_method
 
-
-def calculate_mu(epsilon, m):
-    """
-    :param epsilon: accuracy required
-    :param m: number of elements we summarize in the objective
-    :return smoothing parameter mu of the smoothed objective of |Ax-b| (using huber smoothing)
-    """
-    return 2.0 * epsilon / m
-
-
-def matrix_l2_norm(A):
-    return np.linalg.norm(A)
-
-
-def calculate_L_f(A, mu):
-    return matrix_l2_norm(A) ** 2 / mu
-
-
-class HuberCalculator(object):
-
-    def __init__(self, mu):
-        self._mu = mu
-
-    def huber(self, z):
-        if abs(z) <= self._mu:
-            return z ** 2 / (2 * self._mu)
-        else:
-            return abs(z) - self._mu / 2
-
-    def huber_derivative(self, x, a, b):
-        """
-        Computes the derivative of f(z)=huber(a*x-b) where:
-        a - R^n row vector
-        x - R^n column vector
-        b - real number
-        """
-        reshaped_x = x.reshape(a.shape[0])
-        if abs(np.dot(a, reshaped_x) - b) < self._mu:
-            return (np.dot(a, reshaped_x) - b) / self._mu * a
-        elif abs(np.dot(a, reshaped_x) - b) > self._mu:
-            return a
-        else:
-            raise Exception('derivative does not defined where (np.dot(a, x) - b) == mu')
-
-class SFISTAMethod(abstract_search_method.SearchMethod):
+class DynamicSFISTAMethod(abstract_search_method.SearchMethod):
     """
     SFISTA implemented to solve the smoothed problem:
     min [(sum (huber(a_i * x - b_i)) + sumplex_indicator(x)]
     """
 
-    def __init__(self, search_state, mu, L):
+    def __init__(self, search_state, initial_mu, initial_L, reduction_interval=20, rate=10):
         """
         mu - smoothing parameter
         L - An upper bound on the Lipschitz constant of grad(f).
         """
-        super(SFISTAMethod, self).__init__(search_state)
+        super(DynamicSFISTAMethod, self).__init__(search_state)
         self._iteration_k = 0
-        self._huber_calc = HuberCalculator(mu)
-        self._L = L
+        self._mu = initial_mu
+        self._huber_calc = sfista_method.HuberCalculator(self._mu)
+        self._L = initial_L
         self._y_k = self._state.x()
+        self._reduction_interval = reduction_interval
+        self._rate = rate
         self._t_k = 1
 
     def step(self):
         self._iteration_k += 1
+        if self._iteration_k % self._reduction_interval == 0:
+            self._mu /= self._rate
+            self._L *=  self._rate
+            self._huber_calc = sfista_method.HuberCalculator(self._mu)
         last_x_k = self._state.x()
         last_t_k = self._t_k
         self._state = self._state.move_to_x(self.get_next_x(self._y_k))
