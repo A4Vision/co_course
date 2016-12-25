@@ -7,6 +7,22 @@ import random_problem
 import numpy as np
 
 
+class TestSmoothingParameterCalculation(unittest.TestCase):
+
+    def test_matrix_l1_norm(self):
+        A = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+        res = matrix_l1_norm(A)
+        self.assertEqual(18, res)
+
+    def test_calculate_smoothing_parameter(self):
+        alpha = 4.0
+        beta = 1.0
+        epsilon = 1.0
+        L_f = 0.5
+        K = 4.5
+        res = calculate_smoothing_parameter(alpha, beta, epsilon, L_f, K)
+        self.assertEqual(0.4, res)
+
 class TestHuberCalculator(unittest.TestCase):
 
     def setUp(self):

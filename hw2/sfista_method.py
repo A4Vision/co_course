@@ -3,6 +3,24 @@ __author__ = 'Amit Botzer'
 from l1_projection import *
 import numpy as np
 from hw2 import abstract_search_method
+import math
+
+
+def calculate_smoothing_parameter(alpha, beta, epsilon, L_f, K):
+    """
+
+    :param alpha: first parameter of smoothable function
+    :param beta: second parameter of smoothable function
+    :param epsilon: accuracy required
+    :param L_f: Lipshitz constant of the smoothable function
+    :param K: third parameter of smoothable function
+    :return: the smoothing parameter mu
+    """
+    return math.sqrt(alpha / beta) * (epsilon / (math.sqrt(alpha * beta) + math.sqrt(alpha * beta + epsilon * (L_f + K))))
+
+
+def matrix_l1_norm(A):
+    return max(sum(A[:,i]) for i in range(0, A.shape[1]))
 
 
 class HuberCalculator(object):
@@ -43,12 +61,14 @@ class SFISTAMethod(abstract_search_method.SearchMethod):
         L - An upper bound on the Lipschitz constant of grad(f).
         """
         super(SFISTAMethod, self).__init__(search_state)
+        self._iteration_k = 0
         self._huber_calc = HuberCalculator(mu)
         self._L = L
         self._y_k = self._state.x()
         self._t_k = 1
 
     def step(self):
+        self._iteration_k += 1
         last_x_k = self._state.x()
         last_t_k = self._t_k
         self._state = self._state.move_to_x(self.get_next_x(self._y_k))
