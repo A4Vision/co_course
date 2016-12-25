@@ -11,14 +11,14 @@ from scipy.spatial import distance
 
 COLORS = ["red", "green", "blue", "black", "yellow"]
 # Amount of iterations in every search.
-N_steps = 120
+N_steps = 100
 # How many problems to randomize, in order to calculate average metrics.
 N_runs = 20
 # How many steps to ignore when plotting the metrics.
 # It is reasonable to ignore the first steps in order to
 # observe better the behavior during convergence, because
 # normally the first iterations have very large metrics.
-FIRST_STEPS_TO_IGNORE_IN_PLOT = 20
+FIRST_STEPS_TO_IGNORE_IN_PLOT = 1
 
 # TODO(assaf): Consider refactoring to using a generic metric.
 # Amount of metrics - scores, gradients_sizes, etc.
@@ -59,7 +59,7 @@ def plot_metrics(method_name2metrics):
     :return:
     """
     f, (scores_ax, gradients_ax, distances_ax, deltas_ax) = plt.subplots(4, sharex=True)
-    f.suptitle("Subgradient Projection Method")
+    f.set_size_inches(15, 10)
     scores_ax.set_title("Score - ||Ax - b||")
     gradients_ax.set_title("Gradient norm - ||gradient(x)||")
     distances_ax.set_title("Distance to real - ||x - x_true||")
@@ -76,7 +76,7 @@ def plot_metrics(method_name2metrics):
     gradients_ax.legend()
     distances_ax.legend()
     deltas_ax.legend()
-    plt.draw()
+    return f
 
 
 def calculate_metrics(search_method, x_true):
@@ -135,16 +135,16 @@ def compare_sgp_step_selectors():
     step_size_selectors = [step_size.DynamicStepSize(),
                            step_size.ConstantStepSize(N_steps),
                            # We know that for x_true, we have exactly Ax = b.
-                           step_size.OptimalStepKnownTargetValue(0),
-                           step_size.SmallerThanOtherSelector(
-                                   step_size.OptimalStepKnownTargetValue(0), 0.5)]
+                           step_size.OptimalStepKnownTargetValue(0),]
     method_name2factory = {}
     for step_size_selector in step_size_selectors:
         method_name2factory[type(step_size_selector).__name__] = functools.partial(
             subgradient_projection_method.SubgradientProjectionMethod,
             step_size_selector=step_size_selector)
     method_name2metrics = measure_metrics_for_various_methods(method_name2factory, N_runs)
-    plot_metrics(method_name2metrics)
+    f = plot_metrics(method_name2metrics)
+    f.suptitle("Subgradient Projection Method")
+    plt.savefig("sgp.png")
     plt.show()
 
 
@@ -170,19 +170,17 @@ def compare_sgp_and_mirror_descent():
         step_size_selector = step_size.MirrorDescentSimplexStepSizeSelector(theta)
         return mirror_descent_with_simplex_setting.MirrorDescentMethod(search_state, step_size_selector)
 
-    mirror_descent3 = functools.partial(mirror_descent_with_simplex_setting.MirrorDescentMethod,
-                                        step_size_selector=step_size.OptimalStepKnownTargetValue(0))
-
     method_name2factory = {"SGP": sgp, "EMD+theta=log(n)": mirror_descent1,
-                           "EMD+theta=log(n)+MAX(SUM(x_i*log(x_i)))": mirror_descent2,
-                           "EMD+step sizea according to gradient l2-norm": mirror_descent3}
+                           "EMD+theta=log(n)+MAX(SUM(x_i*log(x_i)))": mirror_descent2}
     method_name2metrics = measure_metrics_for_various_methods(method_name2factory, N_runs)
-    plot_metrics(method_name2metrics)
+    f = plot_metrics(method_name2metrics)
+    f.suptitle("SGV vs. Entropic Mirror Descent")
+    plt.savefig("emd_and_sgp.png")
     plt.show()
 
 
 def main():
-    # compare_sgp_step_selectors()
+    compare_sgp_step_selectors()
     compare_sgp_and_mirror_descent()
 
 if __name__ == '__main__':
