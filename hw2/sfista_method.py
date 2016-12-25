@@ -3,24 +3,23 @@ __author__ = 'Amit Botzer'
 from l1_projection import *
 import numpy as np
 from hw2 import abstract_search_method
-import math
 
 
-def calculate_smoothing_parameter(alpha, beta, epsilon, L_f, K):
+def calculate_mu(epsilon, m):
     """
-
-    :param alpha: first parameter of smoothable function
-    :param beta: second parameter of smoothable function
     :param epsilon: accuracy required
-    :param L_f: Lipshitz constant of the smoothable function
-    :param K: third parameter of smoothable function
-    :return: the smoothing parameter mu
+    :param m: number of elements we summarize in the objective
+    :return smoothing parameter mu of the smoothed objective of |Ax-b| (using huber smoothing)
     """
-    return math.sqrt(alpha / beta) * (epsilon / (math.sqrt(alpha * beta) + math.sqrt(alpha * beta + epsilon * (L_f + K))))
+    return 2.0 * epsilon / m
 
 
-def matrix_l1_norm(A):
-    return max(sum(A[:,i]) for i in range(0, A.shape[1]))
+def matrix_l2_norm(A):
+    return np.linalg.norm(A)
+
+
+def calculate_L_f(A, mu):
+    return matrix_l2_norm(A) ** 2 / mu
 
 
 class HuberCalculator(object):
@@ -47,7 +46,6 @@ class HuberCalculator(object):
             return a
         else:
             raise Exception('derivative does not defined where (np.dot(a, x) - b) == mu')
-
 
 class SFISTAMethod(abstract_search_method.SearchMethod):
     """

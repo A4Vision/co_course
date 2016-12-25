@@ -7,21 +7,23 @@ import random_problem
 import numpy as np
 
 
-class TestSmoothingParameterCalculation(unittest.TestCase):
+class TestParameterCalculation(unittest.TestCase):
 
-    def test_matrix_l1_norm(self):
-        A = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-        res = matrix_l1_norm(A)
-        self.assertEqual(18, res)
+    def test_matrix_l2_norm(self):
+        A = np.array([[5, -4, 2], [-1, 2, 3], [-2, 1, 0]])
+        res = matrix_l2_norm(A)
+        self.assertEqual(8, res)
 
-    def test_calculate_smoothing_parameter(self):
-        alpha = 4.0
-        beta = 1.0
+    def test_calculate_mu(self):
         epsilon = 1.0
-        L_f = 0.5
-        K = 4.5
-        res = calculate_smoothing_parameter(alpha, beta, epsilon, L_f, K)
-        self.assertEqual(0.4, res)
+        m = 80
+        res = calculate_mu(epsilon, m)
+        self.assertEqual(1.0/40, res)
+
+    def test_calculate_L_f(self):
+        A = np.array([[5, -4, 2], [-1, 2, 3], [-2, 1, 0]])
+        mu = 0.1
+        self.assertEqual(640, calculate_L_f(A, mu))
 
 class TestHuberCalculator(unittest.TestCase):
 
