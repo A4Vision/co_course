@@ -9,35 +9,16 @@ import numpy as np
 
 class TestParameterCalculation(unittest.TestCase):
 
-    def test_matrix_l2_norm(self):
-        A = np.array([[5, -4, 2], [-1, 2, 3], [-2, 1, 0]])
-        res = matrix_l2_norm(A)
-        self.assertEqual(8, res)
-
     def test_calculate_mu(self):
         epsilon = 1.0
         m = 80
         res = calculate_mu(epsilon, m)
-        self.assertEqual(1.0/40, res)
-
-    def test_calculate_L_f(self):
-        A = np.array([[5, -4, 2], [-1, 2, 3], [-2, 1, 0]])
-        mu = 0.1
-        self.assertEqual(640, calculate_L_f(A, mu))
+        self.assertEqual(1.0/80, res)
 
 class TestHuberCalculator(unittest.TestCase):
 
     def setUp(self):
         self.huber_calc = HuberCalculator(0.5)
-
-    def test_huber_with_bigger_value_than_mu(self):
-        self.assertAlmostEqual(0.01, self.huber_calc.huber(0.1), 7)
-
-    def test_huber_with_smaller_value_than_mu(self):
-        self.assertAlmostEqual(0.75, self.huber_calc.huber(1), 7)
-
-    def test_huber_with_mu(self):
-        self.assertAlmostEqual(0.25, self.huber_calc.huber(0.5), 7)
 
     def test_huber_derivative_where_obj_smaller_than_mu(self):
         a = np.array([1, -1.5, 1.5, 2, -0.5])
@@ -52,14 +33,6 @@ class TestHuberCalculator(unittest.TestCase):
         b = 0.25
         res = self.huber_calc.huber_derivative(x, a, b)
         self.assertItemsEqual(a, res)
-
-    def test_huber_derivative_where_obj_equal_mu(self):
-        a = np.array([1, -1.5, 1.5, 2, -0.5])
-        x = np.array([0.2, 0.2, 0.2, 0.2, 0.2])
-        b = 0
-        with self.assertRaises(Exception):
-            self.huber_calc.huber_derivative(x, a, b)
-
 
 class TestSFISTAMethod(unittest.TestCase):
 

@@ -3,33 +3,19 @@ import numpy as np
 from hw2 import abstract_search_method
 import math
 
+
 def calculate_mu(epsilon, m):
-    """
-    :param epsilon: accuracy required
-    :param m: number of elements we summarize in the objective
-    :return smoothing parameter mu of the smoothed objective of |Ax-b| (using huber smoothing)
-    """
-    return 2.0 * epsilon / m
-
-
-def matrix_l2_norm(A):
-    return np.linalg.norm(A)
+    return epsilon / m
 
 
 def calculate_L_f(A, mu):
-    return matrix_l2_norm(A) ** 2 / mu
+    return np.linalg.norm(A, 2) / mu
 
 
 class HuberCalculator(object):
 
     def __init__(self, mu):
         self._mu = mu
-
-    def huber(self, z):
-        if abs(z) <= self._mu:
-            return z ** 2 / (2 * self._mu)
-        else:
-            return abs(z) - self._mu / 2
 
     def huber_derivative(self, x, a, b):
         """
@@ -39,12 +25,12 @@ class HuberCalculator(object):
         b - real number
         """
         reshaped_x = x.reshape(a.shape[0])
-        if abs(np.dot(a, reshaped_x) - b) < self._mu:
-            return (np.dot(a, reshaped_x) - b) / self._mu * a
-        elif abs(np.dot(a, reshaped_x) - b) > self._mu:
-            return a
-        else:
-            raise Exception('derivative does not defined where (np.dot(a, x) - b) == mu')
+        z = np.dot(a, reshaped_x) - b
+        if abs(z) <= self._mu:
+            return z / self._mu * a
+        elif abs(z) > self._mu:
+            return np.sign(z) * a
+
 
 class SFISTAMethod(abstract_search_method.SearchMethod):
     """
@@ -78,14 +64,10 @@ class SFISTAMethod(abstract_search_method.SearchMethod):
         return project_into_simplex(reshaped)
 
     def grad_f(self, x):
-        res = sum(self._huber_calc.huber_derivative(x, self._state.A()[i,:], self._state.b()[i]) for i in range(0, self._state.A().shape[0]))
-        return res
+        return sum(self._huber_calc.huber_derivative(x, self._state.A()[i,:], self._state.b()[i]) for i in range(0, self._state.A().shape[0]))
 
     def get_next_t(self, current_t):
         return (1 + math.sqrt(1 + 4 * (current_t ** 2))) / 2
 
     def get_next_y(self, current_x, last_x, new_t, current_t):
         return current_x + (current_t - 1.0) / new_t * (current_x - last_x)
-
-    def smoothed_f(self, x):
-        return sum(self._huber_calc.huber(np.dot(self._state.A()[i,:], x) - self._state.b()[i]) for i in range(0, self._state.A().shape[0]))
