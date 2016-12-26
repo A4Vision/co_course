@@ -4,12 +4,8 @@ from hw2 import abstract_search_method
 from hw2 import sfista_method
 
 class DynamicSFISTAMethod(abstract_search_method.SearchMethod):
-    """
-    SFISTA implemented to solve the smoothed problem:
-    min [(sum (huber(a_i * x - b_i)) + sumplex_indicator(x)]
-    """
 
-    def __init__(self, search_state, initial_mu, reduction_interval=20, rate=2, assaf=1.0):
+    def __init__(self, search_state, initial_mu, initial_reduction_interval, rate):
         """
         mu - smoothing parameter
         L - An upper bound on the Lipschitz constant of grad(f).
@@ -20,17 +16,17 @@ class DynamicSFISTAMethod(abstract_search_method.SearchMethod):
         self._huber_calc = sfista_method.HuberCalculator(self._mu)
         self._L = sfista_method.calculate_L_f(self._state.A(), self._mu)
         self._y_k = self._state.x()
-        self._reduction_interval = reduction_interval
+        self._current_red_interval = initial_reduction_interval
         self._rate = rate
         self._t_k = 1
-        self._assaf = assaf
 
     def step(self):
         self._iteration_k += 1
-        if self._iteration_k % self._reduction_interval == 0:
+        if self._iteration_k == self._current_red_interval:
             self._mu /= self._rate
-            self._L *= sfista_method.calculate_L_f(self._state.A(), self._mu)
+            self._L *= self._rate
             self._huber_calc = sfista_method.HuberCalculator(self._mu)
+            self._current_red_interval *= 2
         last_x_k = self._state.x()
         last_t_k = self._t_k
         self._state = self._state.move_to_x(self.get_next_x(self._y_k))
@@ -50,4 +46,4 @@ class DynamicSFISTAMethod(abstract_search_method.SearchMethod):
         return (1 + (1 + 4 * (current_t ** 2)) ** 0.5) / 2
 
     def get_next_y(self, current_x, last_x, new_t, current_t):
-        return current_x + self._assaf * (current_t - 1.0) / new_t * (current_x - last_x)
+        return current_x + (current_t - 1.0) / new_t * (current_x - last_x)

@@ -219,19 +219,20 @@ def compare_dynamic_sfista_with_fixed_sfista():
         return sfista_method.SFISTAMethod(search_state, mu, L_f)
 
     def dynamic_sfista(search_state):
-        return dynamic_sfista_method.DynamicSFISTAMethod(search_state, 64.0)
+        return dynamic_sfista_method.DynamicSFISTAMethod(search_state, 0.005, 5, 2)
 
     method_name2factory = {"fixed SFISTA": fixed_sfista, "dynamic SFISTA": dynamic_sfista}
     method_name2metrics = measure_metrics_for_various_methods(method_name2factory, N_runs)
     f = plot_metrics(method_name2metrics)
     f.suptitle("fixed SFISTA vs. dynamic SFISTA")
-    #plt.savefig("dynamic_vs_fixed_sfista.png")
+    plt.savefig("dynamic_vs_fixed_sfista.png")
     plt.show()
 
 def main():
-    compare_sgp_step_selectors()
-    compare_sgp_and_mirror_descent()
-    compare_all()
+    # compare_sgp_step_selectors()
+    # compare_sgp_and_mirror_descent()
+    # compare_all()
+    compare_dynamic_sfista_with_fixed_sfista()
 
 if __name__ == '__main__':
     main()
