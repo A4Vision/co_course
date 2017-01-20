@@ -11,8 +11,6 @@ from hw3.q1 import q1_search_state
 def get_real_root_with_sign(coefs, sign):
     roots = np.roots(coefs)
     real = [x.real for x in roots if abs(x.imag) < 1e-4 and np.sign(x.real) == sign]
-    print 'roots', roots
-    print 'sign', sign
     assert len(real) == 1
     return real[0]
 
