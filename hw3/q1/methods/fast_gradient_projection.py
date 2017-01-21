@@ -12,7 +12,7 @@ class FastGradientProjectionMethod(abstract_search_method.SearchMethod):
         self._xk = search_state.as_vec()
 
     def step(self, _):
-        subgradient = self._yk
+        subgradient = q1_search_state.Q1State.from_vec(self._yk).subgradient_5_variables()
         shifted = self._yk - 1. / self._L * subgradient
         shifted_state = q1_search_state.Q1State.from_vec(shifted)
         prev_xk = self._xk

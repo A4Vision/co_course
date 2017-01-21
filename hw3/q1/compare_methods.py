@@ -8,55 +8,67 @@ from hw3.q1.methods import fast_gradient_projection, gradient_projection, single
 from hw3.q1.utils import q1_search_state
 
 
-def best_value(state0):
-    method = single_variable_search.SingleVarSearch(single_variable_search.SingleVarSearch(state0.x2))
-    for i in xrange(1000):
+def best_value():
+    """
+    Returns the best possible score.
+    :return:
+    """
+    method = single_variable_search.SingleVarSearch(1.5)
+    for i in xrange(3000):
         method.step(None)
     return method.full_solution().score()
 
 
-def Q1d_compare_1000_iterations():
-    pass
-
-
-def Q1c_compare_100_iterations():
+def Q1_comparison():
     np.random.seed(1234)
+    #
     state0 = q1_search_state.Q1State.random_state()
 
     gradient_projection_5_vars = gradient_projection.GradientProjectionMethod(state0)
     naive_3_vars = gradient_projection.GradientProjectionMethod(state0)
-    single_var = single_variable_search.SingleVarSearch(single_variable_search.SingleVarSearch(state0.x2))
-
+    single_var = single_variable_search.SingleVarSearch(state0.x2)
     fgp = fast_gradient_projection.FastGradientProjectionMethod(state0)
 
     scores = collections.defaultdict(list)
-    for i in xrange(2000):
+
+    for i in xrange(1000):
         for (method, eta) in [(gradient_projection_5_vars, 1. / math.sqrt(i + 2)),
-                              (method_naive_3_vars, 0.4 / math.sqrt(i + 3)),
-                              (method_single_var, None),
-                              (fgp,  4 / math.sqrt(i + 3))]:
+                              (naive_3_vars, 1.5 / math.sqrt(i + 2)),
+                              (single_var, None),
+                              (fgp,  None)]:
+            scores[method].append(method.score())
             method.step(eta)
-            scores[method].append(method.full_solution().score())
-    plt.figure(figsize=(200, 400))
-    h_best = best_value(state0)
-    for (method, description, style) in [
-        (gradient_projection_5_vars, 'projection', 'r--'),
-        # (method_naive_3_vars, 'naive gradient descent', 'b--'),
-        # (method_single_var, 'naive single variable', 'y--'),
-        (fgp, 'fast gradient projection', 'g-*')
-    ]:
-        plt.semilogy(np.array(scores[method] - h_best), style, label=description)
+    plt.figure(figsize=(20, 10))
+
+    plt.plot(scores[gradient_projection_5_vars][:100], 'r->', label='gradient projection')
+    plt.plot(scores[naive_3_vars][:100], 'b-<', label='naive gradient descent')
+    plt.plot(scores[single_var][:100], 'y-+', label='single variable')
+    plt.plot(scores[fgp][:100], 'g-*', label='fast gradient projection')
 
     plt.legend()
-    plt.show()
-    print gradient_projection_5_vars.state().as_vec(), gradient_projection_5_vars.state().score()
-    print method_naive_3_vars.state().as_vec(), method_naive_3_vars.state().score()
-    print method_single_var.state().full_solution().as_vec(), method_single_var.state().full_solution().score()
-    print fgp.state().as_vec(), fgp.state().score()
+    plt.savefig("first_100_iterations.png")
+
+    h_best = best_value()
+
+    plt.figure(figsize=(20, 10))
+
+    plt.semilogy(np.array(scores[gradient_projection_5_vars]) - h_best, 'r->', label='gradient projection')
+    plt.semilogy(np.array(scores[naive_3_vars]) - h_best, 'b-<', label='naive gradient descent')
+    # plt.semilogy(np.array(scores[single_var]) - h_best, 'y-+', label='single variable')
+    plt.semilogy(np.array(scores[fgp]) - h_best, 'g-*', label='fast gradient projection')
+
+    plt.legend()
+
+    plt.savefig("first_1000_iterations_diff_from_best.png")
+
+    print gradient_projection_5_vars.full_solution(), gradient_projection_5_vars.score()
+    print naive_3_vars.full_solution(), naive_3_vars.score()
+    print single_var.full_solution(), single_var.score()
+    print fgp.full_solution(), fgp.score()
 
 
 def main():
-    run_sgp()
+    Q1_comparison()
 
 
 if __name__ == '__main__':

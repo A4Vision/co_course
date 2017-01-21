@@ -6,3 +6,5 @@ class SearchMethod(object):
     def full_solution(self):
         raise NotImplementedError()
 
+    def score(self):
+        return self.full_solution().score()

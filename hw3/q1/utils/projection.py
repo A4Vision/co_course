@@ -12,7 +12,7 @@ from hw3.q1.utils import equation_solver, q1_search_state
 def project_to_parabloid_epigraph(x0, y0, z0):
     """
     Euclidean projection to the the set:
-        {(x, y, z) | z ** 2 >= x ** 2 + y ** 2}
+        {(x, y, z) | z >= x ** 2 + y ** 2}
     :param x0:
     :param y0:
     :param z0:
@@ -42,7 +42,32 @@ def project_to_parabloid_epigraph(x0, y0, z0):
         return x, y, z
 
 
+def project_to_ball_hypergraph(x, z):
+    """
+    Euclidean projection to the the set:
+        {(x, z) | z >= x ** 2 + 1}
+    :param x:
+    :param y:
+    :param z:
+    :return:
+    """
+    coefs = [2, 0, 1 - 2 * z, -x]
+    xs = equation_solver.real_roots(coefs, np.sign(x))
+    assert len(xs) == 1
+    x = xs[0]
+    z = x ** 2 + 1
+    return x, z
+
+
+def project_to_parabloid_and_y_greater_than1(x, y, z):
+    x, y, z = project_to_parabloid_epigraph(x, y, z)
+    if y < 1:
+        y = 1.
+        x, z = project_to_ball_hypergraph(x, z)
+    return x, y, z
+
+
 def project_to_parabloids_intersection(q1a_state):
-    x1, x2, y1 = project_to_parabloid_epigraph(q1a_state.x1, q1a_state.x2, q1a_state.y1)
-    x2, x3, y2 = project_to_parabloid_epigraph(x2, q1a_state.x3, q1a_state.y2)
+    x1, x2, y1 = project_to_parabloid_and_y_greater_than1(q1a_state.x1, q1a_state.x2, q1a_state.y1)
+    x3, x2, y2 = project_to_parabloid_and_y_greater_than1(q1a_state.x3, x2, q1a_state.y2)
     return q1_search_state.Q1State(x1, x2, x3, y1, y2)

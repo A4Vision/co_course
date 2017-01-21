@@ -41,9 +41,13 @@ class Q1State(object):
 
     @classmethod
     def random_state(cls):
+        # Add 1 to make sure x2 >= 1
         vec = 1. + np.random.random(size=5)
         return Q1State(*vec.tolist())
 
     @classmethod
     def from_vec(cls, vec):
         return cls(*vec.tolist())
+
+    def __str__(self):
+        return "x1={} x2={} x3={} y1={} y2={}".format(self.x1, self.x2, self.x3, self.y1, self.y2)
