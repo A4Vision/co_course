@@ -5,7 +5,7 @@ class SearchMethod(object):
     def __init__(self, search_state):
         self._state = search_state
 
-    def step(self):
+    def step(self, eta):
         raise NotImplementedError
 
     def state(self):

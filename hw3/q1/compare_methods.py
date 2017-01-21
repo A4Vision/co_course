@@ -1,34 +1,44 @@
+import collections
+
+import math
 import numpy as np
 from matplotlib import pyplot as plt
 from hw3.q1 import q1_search_state
 from hw3.q1 import step_size
 from hw3.q1 import subgradient_projection_method
-
-
+from hw3.q1 import single_variable_state
+from hw3.q1 import fast_gradient_projection
 def run_sgp():
     step_size_selector = step_size.DynamicStepSize()
-    np.random.seed(123)
+    np.random.seed(1243)
     state0 = q1_search_state.Q1State.random_state()
-    method0 = subgradient_projection_method.SubgradientProjectionMethod(state0, step_size_selector,
+    gradient_projection_5_vars = subgradient_projection_method.SubgradientProjectionMethod(state0, step_size_selector,
                                                                         False)
-    method1 = subgradient_projection_method.SubgradientProjectionMethod(state0, step_size_selector,
+    method_naive_3_vars = subgradient_projection_method.SubgradientProjectionMethod(state0, step_size_selector,
                                                                         True)
-    scores0 = []
-    scores1 = []
+    method_single_var = single_variable_state.SingleVarSearch(single_variable_state.SingleVarState(state0.x2))
+    fgp = fast_gradient_projection.FastGradientProjectionMethod(state0, L=4)
+
+    scores = collections.defaultdict(list)
     for i in xrange(1000):
-        method0.step(0.65)
-        method1.step(0.2)
-        scores0.append(method0.state().score())
-        scores1.append(method1.state().score())
+        for (method, eta) in [(gradient_projection_5_vars, 2. / math.sqrt(i + 2)),
+                              (method_naive_3_vars, 0.4 / math.sqrt(i + 3)),
+                              (method_single_var, None),
+                              (fgp, None)]:
+            method.step(eta)
+            scores[method].append(method.state().score())
     plt.figure(figsize=(200, 400))
-    plt.plot(scores0, 'r-*')
-    plt.plot(scores1, 'b--')
-    print zip(scores0, scores1)[800:]
+
+    for (method, description, style) in [(gradient_projection_5_vars, 'projection', 'r--'), (method_naive_3_vars, 'naive gradient descent', 'b--'),
+                                         (method_single_var, 'naive single variable', 'y--'),
+                                         (fgp, 'fast gradient projection', 'g-*')]:
+        plt.semilogy(scores[method][:200], style, label=description)
+    plt.legend()
     plt.show()
-    print method0.state().as_vec()
-    print method1.state().as_vec()
 
-
+    print gradient_projection_5_vars.state().as_vec()
+    print method_naive_3_vars.state().as_vec()
+    print method_single_var.state().state().as_vec()
 
 
 def main():

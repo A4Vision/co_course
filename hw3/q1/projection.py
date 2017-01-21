@@ -6,13 +6,7 @@ from __future__ import division
 import numpy as np
 
 from hw3.q1 import q1_search_state
-
-
-def get_real_root_with_sign(coefs, sign):
-    roots = np.roots(coefs)
-    real = [x.real for x in roots if abs(x.imag) < 1e-4 and np.sign(x.real) == sign]
-    assert len(real) == 1
-    return real[0]
+from hw3.q1 import equation_solver
 
 
 def project_to_parabloid_epigraph(x0, y0, z0):
@@ -31,14 +25,14 @@ def project_to_parabloid_epigraph(x0, y0, z0):
         return x, y, z
     elif x0 == 0:
         coefs = [4 * y0, 0, 2 - 4 * z0, -2 * y0]
-        y = get_real_root_with_sign(coefs, np.sign(y0))
+        y = equation_solver.get_real_root_with_sign(coefs, np.sign(y0))
         x = 0
         z = y ** 2 + x ** 2
         return x, y, z
     else:
         B = (y0 / x0) ** 2
         coefs = [2 * (B + 1),  0, 1. - 2 * z0, -x0]
-        x = get_real_root_with_sign(coefs, np.sign(x0))
+        x = equation_solver.get_real_root_with_sign(coefs, np.sign(x0))
         y = y0 / x0 * x
         z = x ** 2 + y ** 2
         return x, y, z
