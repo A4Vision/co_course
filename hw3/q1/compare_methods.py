@@ -1,32 +1,33 @@
 import collections
-
 import math
+
 import numpy as np
 from matplotlib import pyplot as plt
-from hw3.q1 import q1_search_state
-from hw3.q1 import step_size
-from hw3.q1 import subgradient_projection_method
-from hw3.q1 import single_variable_state
-from hw3.q1 import fast_gradient_projection
+
+from hw3.q1.methods import fast_gradient_projection, gradient_projection, single_variable_search, naive_gradient_descent
+from hw3.q1.utils import q1_search_state
 
 
 def best_value(state0):
-    method = single_variable_state.SingleVarSearch(single_variable_state.SingleVarState(state0.x2))
+    method = single_variable_search.SingleVarSearch(single_variable_search.SingleVarSearch(state0.x2))
     for i in xrange(1000):
         method.step(None)
-    return method.state().state().score()
+    return method.full_solution().score()
 
 
-def run_sgp():
-    step_size_selector = step_size.DynamicStepSize()
-    np.random.seed(1243)
+def Q1d_compare_1000_iterations():
+    pass
+
+
+def Q1c_compare_100_iterations():
+    np.random.seed(1234)
     state0 = q1_search_state.Q1State.random_state()
-    gradient_projection_5_vars = subgradient_projection_method.SubgradientProjectionMethod(state0, step_size_selector,
-                                                                                           False)
-    method_naive_3_vars = subgradient_projection_method.SubgradientProjectionMethod(state0, step_size_selector,
-                                                                                    True)
-    method_single_var = single_variable_state.SingleVarSearch(single_variable_state.SingleVarState(state0.x2))
-    fgp = fast_gradient_projection.FastGradientProjectionMethod(state0, L=4)
+
+    gradient_projection_5_vars = gradient_projection.GradientProjectionMethod(state0)
+    naive_3_vars = gradient_projection.GradientProjectionMethod(state0)
+    single_var = single_variable_search.SingleVarSearch(single_variable_search.SingleVarSearch(state0.x2))
+
+    fgp = fast_gradient_projection.FastGradientProjectionMethod(state0)
 
     scores = collections.defaultdict(list)
     for i in xrange(2000):
@@ -35,7 +36,7 @@ def run_sgp():
                               (method_single_var, None),
                               (fgp,  4 / math.sqrt(i + 3))]:
             method.step(eta)
-            scores[method].append(method.state().score())
+            scores[method].append(method.full_solution().score())
     plt.figure(figsize=(200, 400))
     h_best = best_value(state0)
     for (method, description, style) in [
@@ -50,7 +51,7 @@ def run_sgp():
     plt.show()
     print gradient_projection_5_vars.state().as_vec(), gradient_projection_5_vars.state().score()
     print method_naive_3_vars.state().as_vec(), method_naive_3_vars.state().score()
-    print method_single_var.state().state().as_vec(), method_single_var.state().state().score()
+    print method_single_var.state().full_solution().as_vec(), method_single_var.state().full_solution().score()
     print fgp.state().as_vec(), fgp.state().score()
 
 

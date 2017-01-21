@@ -37,7 +37,7 @@ def solve_x(search, output_folder, title):
             images.append(image_path)
             texts.append("Iteration {}".format(i + 1))
             if OUTPUT_FILES:
-                blur.save_array_as_img(search.state(), image_path)
+                blur.save_array_as_img(search.full_solution(), image_path)
         search.step()
 
     if OUTPUT_FILES:

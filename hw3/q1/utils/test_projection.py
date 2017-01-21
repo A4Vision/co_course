@@ -2,8 +2,7 @@ import unittest
 
 import numpy as np
 
-import projection
-from hw3.q1 import q1_search_state
+from hw3.q1.utils import projection, q1_search_state
 
 
 class TestProjection(unittest.TestCase):
