@@ -14,7 +14,7 @@ class FastGradientProjectionMethod(abstract_search_method.SearchMethod):
         self._xk = search_state
 
     def step(self, eta):
-        subgradient = self._yk.subgradient_vec()
+        subgradient = self._yk.subgradient_vec() * eta
         shifted = self._yk.as_vec() - 1. / self._L * subgradient
         prev_xk = self._xk
         self._xk = projection.project_to_parabloids_intersection(q1_search_state.Q1State.from_vec(shifted))

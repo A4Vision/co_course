@@ -38,7 +38,7 @@ class Q1State(object):
 
     @classmethod
     def random_state(cls):
-        vec = np.random.random(size=5)
+        vec = 1. + np.random.random(size=5)
         return Q1State(*vec.tolist())
 
     @classmethod
