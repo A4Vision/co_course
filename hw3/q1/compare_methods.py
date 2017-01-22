@@ -86,7 +86,7 @@ def Q1_comparison():
     plt.semilogy(np.array(scores_primal[dual_fgp]) - h_best, 'm--', label='dual fast gradient projection')
     plt.semilogy(np.array(scores_primal[gradient_projection_5_vars]) - h_best, 'r->', label='gradient projection')
     plt.legend()
-    plt.savefig("q1d_first_1000_iterations_diff_from_best_full_plot.png")
+    plt.savefig("q1d_first_1000_iterations_diff_from_best.png")
     # Plot of all methods.
     plt.figure(figsize=(20, 10))
     plt.semilogy(np.array(scores_primal[gradient_projection_dual]) - h_best, 'c->', label='dual gradient projection')
