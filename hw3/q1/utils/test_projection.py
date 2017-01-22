@@ -29,7 +29,7 @@ class TestProjection(unittest.TestCase):
         for _ in xrange(100):
             rand = np.random.random(size=5)
             state = q1_search_state.Q1State(*rand.tolist())
-            next_state = projection.project_to_parabloids_intersection(state)
+            next_state = q1_search_state.Q1State(*projection.project_to_parabloids_intersection(*state.as_vec()))
             x0, y0, z0 = next_state.x1, next_state.x2, next_state.y1
             x, y, z = projection.project_to_parabloid_epigraph(x0, y0, z0)
             self.assertAlmostEqual(x0, x)
