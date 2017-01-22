@@ -28,7 +28,7 @@ class Q1DualState(object):
                 self.l2 * (primal.x2 ** 2 + primal.x3 ** 2 - primal.y2))
 
     def score(self):
-        return self.score_primal() + self.score_penalty()
+        return self.as_q1_state().full_score() + self.score_penalty()
 
     def gradient_penalty(self):
         primal = self.as_q1_state()
