@@ -10,8 +10,7 @@ class GradientProjectionMethod(abstract_search_method.SearchMethod):
         return self._state
 
     def step(self, eta):
-        subgradient = self._state.subgradient_5_variables()
-        shifted = self._state.as_vec() - eta * subgradient
-        state_shifted = q1_search_state.Q1State.from_vec(shifted)
-        self._state = projection.project_to_parabloids_intersection(state_shifted)
-
+        gradient = self._state.gradient()
+        shifted = self._state.as_vec() - eta * gradient
+        state_shifted = self._state.from_vec(shifted)
+        self._state = state_shifted.projection()
