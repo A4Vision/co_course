@@ -10,7 +10,7 @@ from hw3.q1.utils import q1_search_state, q1_dual_search_state
 
 def best_value():
     """
-    Returns the best possible score.
+    Returns the best possible objective function.
     :return:
     """
     method = single_variable_search.SingleVarSearch(1.5)
@@ -56,17 +56,18 @@ def Q1_comparison():
     print gradient_projection_5_vars.full_solution()
 
     # Plot required by exercise
-    plt.figure(figsize=(20, 10))
-    plt.title("Score as function of iteration")
+    plt.figure(figsize=(15, 8))
+    plt.title("objective function as function of iteration")
     plt.xlabel("iteration")
     plt.ylabel("h(x_k)")
-    plt.plot(scores_primal[gradient_projection_5_vars][:100], 'r->', label='gradient projection')
-    plt.plot(scores_primal[dual_fgp][:100], 'm--', label='dual fast gradient projection')
+    plt.plot(scores_primal[gradient_projection_5_vars][:100], 'r->', label='primal objective function - gradient projection')
+    plt.plot(scores_primal[dual_fgp][:100], 'm--', label='primal objective function - dual fast gradient projection')
+    plt.plot(scores[dual_fgp][:100], 'b-*', label='dual objective function - dual fast gradient projection')
     plt.legend()
     plt.savefig("q1c_first_100_iterations.png")
 
     # Plot of all methods.
-    plt.figure(figsize=(20, 10))
+    plt.figure(figsize=(15, 8))
     plt.plot(scores_primal[gradient_projection_5_vars][:100], 'r->', label='gradient projection')
     plt.plot(scores_primal[gradient_projection_dual][:100], 'c->', label='gradient projection dual')
     plt.plot(scores_primal[naive_3_vars][:100], 'b-<', label='naive gradient descent')
@@ -79,7 +80,7 @@ def Q1_comparison():
     h_best = best_value()
 
     # Plot required by exercise.
-    plt.figure(figsize=(20, 10))
+    plt.figure(figsize=(15, 8))
     plt.title("Score minus best_score")
     plt.xlabel("iteration")
     plt.ylabel("h(x_k) - h*")
@@ -87,8 +88,9 @@ def Q1_comparison():
     plt.semilogy(np.array(scores_primal[gradient_projection_5_vars]) - h_best, 'r->', label='gradient projection')
     plt.legend()
     plt.savefig("q1d_first_1000_iterations_diff_from_best.png")
+
     # Plot of all methods.
-    plt.figure(figsize=(20, 10))
+    plt.figure(figsize=(15, 8))
     plt.semilogy(np.array(scores_primal[gradient_projection_dual]) - h_best, 'c->', label='dual gradient projection')
     plt.semilogy(np.array(scores_primal[dual_fgp]) - h_best, 'm--', label='dual fast gradient projection')
     plt.semilogy(np.array(scores_primal[gradient_projection_5_vars]) - h_best, 'r->', label='gradient projection')
