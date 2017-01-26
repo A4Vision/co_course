@@ -97,7 +97,7 @@ def test_from_to_vec():
 
 
 class DualState(object):
-    LIPSCHITZ_L = 2.
+    LIPSCHITZ_L = 1.
 
     def __init__(self, v):
         assert isinstance(v, np.ndarray)

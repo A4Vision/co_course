@@ -33,7 +33,7 @@ def Q1_comparison():
 
     for i in xrange(1000):
         for (method, eta) in [
-            (gradient_projection_primal, 0.5 / math.sqrt(i + 2)),
+            (gradient_projection_primal, 1 / math.sqrt(i + 2)),
             (fgp_dual, None)
         ]:
             scores_primal[method].append(method.full_solution().score_primal())
