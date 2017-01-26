@@ -4,8 +4,8 @@ import math
 import numpy as np
 from matplotlib import pyplot as plt
 
-from hw3.q1.methods import fast_gradient_projection, gradient_projection, single_variable_search, naive_gradient_descent
-from hw3.q1.utils import q1_search_state, q1_dual_search_state
+from hw3.q1.methods import fast_gradient_projection, gradient_projection, single_variable_search
+from hw3.q1.utils import q1_simple_search_state
 
 
 def best_value():
@@ -21,87 +21,61 @@ def best_value():
 
 def Q1_comparison():
     np.random.seed(1234)
-    #
-    state0 = q1_search_state.Q1State.random_state()
+    state0_primal = q1_simple_search_state.PrimalState.random_state().projection()
+    state0_dual = q1_simple_search_state.DualState.random_state().projection()
 
-    state_dual = q1_dual_search_state.Q1DualState.random_state()
-
-    gradient_projection_5_vars = gradient_projection.GradientProjectionMethod(state0)
-
-    gradient_projection_dual = gradient_projection.GradientProjectionMethod(state_dual)
-    dual_fgp = fast_gradient_projection.FastGradientProjectionMethod(state_dual)
-
-    naive_3_vars = naive_gradient_descent.NaiveGradientDescent(state0)
-    single_var = single_variable_search.SingleVarSearch(state0.x2)
-    fgp = fast_gradient_projection.FastGradientProjectionMethod(state0)
+    gradient_projection_primal = gradient_projection.GradientProjectionMethod(state0_primal)
+    fgp_dual = fast_gradient_projection.FastGradientProjectionMethod(state0_dual)
 
     scores_primal = collections.defaultdict(list)
     scores = collections.defaultdict(list)
     solutions100 = {}
 
     for i in xrange(1000):
-        for (method, eta) in [(gradient_projection_5_vars, 1. / math.sqrt(i + 2)),
-                              (gradient_projection_dual, 0.2 / math.sqrt(i + 2)),
-                              (naive_3_vars, 0.5 / math.sqrt(i + 2)),
-                              (single_var, None),
-                              (dual_fgp, None),
-                              (fgp,  None)]:
+        for (method, eta) in [
+            (gradient_projection_primal, 0.5 / math.sqrt(i + 2)),
+            (fgp_dual, None)
+        ]:
             scores_primal[method].append(method.full_solution().score_primal())
             scores[method].append(method.full_solution().score())
             method.step(eta)
+
             if i == 100:
                 solutions100[method] = method.full_solution()
 
     print "Final Solutions:\n=============="
     print "Dual fast gradient projection solution:"
-    print solutions100[dual_fgp].as_q1_state()
+    print solutions100[fgp_dual]
     print "Primal gradient projection solution:"
-    print solutions100[gradient_projection_5_vars]
-
+    print solutions100[gradient_projection_primal]
+    print 'FastGradientProjection on dual last score', fgp_dual.full_solution().score_primal()
+    print 'GradientProjection last score', gradient_projection_primal.score()
     # Plot required by exercise
-    plt.figure(figsize=(12, 10))
-    plt.title("objective function as function of iteration")
-    plt.xlabel("iteration")
-    plt.ylabel("h(x_k)")
-    plt.plot(scores_primal[gradient_projection_5_vars][:100], 'r->', label='primal objective function - gradient projection')
-    plt.plot(scores_primal[dual_fgp][:100], 'm--', label='primal objective function - dual fast gradient projection')
-    plt.plot(scores[dual_fgp][:100], 'b-*', label='dual objective function - dual fast gradient projection')
-    plt.legend()
-    plt.savefig("q1c_first_100_iterations.png")
+    for N in (7, 100):
+        plt.figure(figsize=(12, 10))
+        plt.title("objective function as function of iteration")
+        plt.xlabel("iteration")
+        plt.ylabel("h(x_k)")
+        plt.plot(scores_primal[gradient_projection_primal][:N], 'r->', label='primal objective function - gradient projection')
+        plt.plot(scores_primal[fgp_dual][:N], 'm-*', label='primal objective function - dual fast gradient projection')
+        plt.plot(-np.array(scores[fgp_dual][:N]), 'b-+', label='dual objective function - dual fast gradient projection')
+        plt.legend()
+        plt.savefig("q1c_first_{}_iterations.png".format(N))
 
-    # Plot of all methods.
-    plt.figure(figsize=(12, 10))
-    plt.plot(scores_primal[gradient_projection_5_vars][:100], 'r->', label='gradient projection')
-    plt.plot(scores_primal[gradient_projection_dual][:100], 'c->', label='gradient projection dual')
-    plt.plot(scores_primal[naive_3_vars][:100], 'b-<', label='naive gradient descent')
-    plt.plot(scores_primal[single_var][:100], 'y-+', label='single variable')
-    plt.plot(scores_primal[fgp][:100], 'g-*', label='fast gradient projection')
-    plt.plot(scores_primal[dual_fgp][:100], 'm--', label='dual fast gradient projection')
-    plt.legend()
-    plt.savefig("q1c_first_100_iterations_full_plot.png")
 
     h_best = best_value()
-
+    print 'best solution - found with single variable optimization', h_best
     # Plot required by exercise.
-    plt.figure(figsize=(12, 10))
-    plt.title("Score minus best_score")
-    plt.xlabel("iteration")
-    plt.ylabel("h(x_k) - h*")
-    plt.semilogy(np.array(scores_primal[dual_fgp]) - h_best, 'm--', label='dual fast gradient projection')
-    plt.semilogy(np.array(scores_primal[gradient_projection_5_vars]) - h_best, 'r->', label='gradient projection')
-    plt.legend()
-    plt.savefig("q1d_first_1000_iterations_diff_from_best.png")
 
-    # Plot of all methods.
-    plt.figure(figsize=(12, 10))
-    plt.semilogy(np.array(scores_primal[gradient_projection_dual]) - h_best, 'c->', label='dual gradient projection')
-    plt.semilogy(np.array(scores_primal[dual_fgp]) - h_best, 'm--', label='dual fast gradient projection')
-    plt.semilogy(np.array(scores_primal[gradient_projection_5_vars]) - h_best, 'r->', label='gradient projection')
-    plt.semilogy(np.array(scores[naive_3_vars]) - h_best, 'b-<', label='naive gradient descent')
-    plt.semilogy(np.array(scores[single_var]) - h_best, 'y-+', label='single variable')
-    plt.semilogy(np.array(scores_primal[fgp]) - h_best, 'g-*', label='fast gradient projection')
-    plt.legend()
-    plt.savefig("q1d_first_1000_iterations_diff_from_best_full_plot.png")
+    for N in (100, 1000):
+        plt.figure(figsize=(12, 10))
+        plt.title("Score minus best_score first {} iterations".format(N))
+        plt.xlabel("iteration")
+        plt.ylabel("h(x_k) - h*")
+        plt.semilogy(np.array(scores_primal[fgp_dual][:N]) - h_best, 'm--', label='dual fast gradient projection')
+        plt.semilogy(np.array(scores_primal[gradient_projection_primal][:N]) - h_best, 'r->', label='gradient projection')
+        plt.legend()
+        plt.savefig("q1d_first_{}_iterations_diff_from_best.png".format(N))
 
 
 def main():
